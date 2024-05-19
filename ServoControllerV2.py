@@ -3,8 +3,8 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11,GPIO.OUT)
-servo = GPIO.PWM(11,50)
+GPIO.setup(18,GPIO.OUT)
+servo = GPIO.PWM(18,50)
 servo.start(0)
 
 controllerInput = evdev.InputDevice("/dev/input/event0")
