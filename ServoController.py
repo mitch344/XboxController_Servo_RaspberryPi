@@ -11,7 +11,7 @@ servo.start(0)
 def map_value(value, in_min, in_max, out_min, out_max):
   return np.interp(value, [in_min, in_max], [out_min, out_max])
 
-controllerInput = evdev.InputDevice("/dev/input/event0")
+controllerInput = evdev.InputDevice("/dev/input/event2")
 
 for event in controllerInput.read_loop():
   if event.type == evdev.ecodes.EV_ABS:
