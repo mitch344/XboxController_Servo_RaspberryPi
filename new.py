@@ -33,28 +33,6 @@ def wait_for_controller(path):
             print("Controller not found, waiting...")
             time.sleep(1)
 
-# Function to make the controller rumble
-def rumble_controller(controllerInput, duration=1):
-    try:
-        # Create a force feedback event
-        effect_id = controllerInput.upload_effect({
-            "type": evdev.ecodes.FF_RUMBLE,
-            "replay": {"length": duration * 1000, "delay": 0},
-            "u": {
-                "rumble": {
-                    "strong_magnitude": 0xc000,
-                    "weak_magnitude": 0x8000,
-                }
-            }
-        })
-        # Play the effect
-        controllerInput.write(evdev.ecodes.EV_FF, effect_id, 1)
-        time.sleep(duration)
-        # Stop the effect
-        controllerInput.write(evdev.ecodes.EV_FF, effect_id, 0)
-    except Exception as e:
-        print(f"Failed to rumble controller: {e}")
-
 # Function to handle controller events
 def handle_events(controllerInput):
     start_button_pressed_time = None
@@ -83,9 +61,6 @@ def handle_events(controllerInput):
 controller_path = "/dev/input/event2"
 controllerInput = wait_for_controller(controller_path)
 
-# Rumble the controller when the program starts
-rumble_controller(controllerInput)
-
 try:
     while True:
         try:
@@ -93,8 +68,6 @@ try:
         except OSError:
             print("Controller disconnected, waiting for reconnection...")
             controllerInput = wait_for_controller(controller_path)
-            # Rumble the controller when reconnected
-            rumble_controller(controllerInput)
 
 except KeyboardInterrupt:
     # Clean up GPIO settings when the script is terminated
