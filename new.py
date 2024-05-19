@@ -32,10 +32,8 @@ def wait_for_controller(path):
             print("Controller not found, waiting...")
             time.sleep(1)
 
-# Wait for the controller to be available
-controllerInput = wait_for_controller("/dev/input/event2")
-
-try:
+# Function to handle controller events
+def handle_events(controllerInput):
     for event in controllerInput.read_loop():
         if event.type == evdev.ecodes.EV_KEY:
             if event.code == evdev.ecodes.BTN_A and event.value == 1:  # A button pressed
@@ -44,6 +42,18 @@ try:
                 move_servo(180)  # Move to 180 degrees
             else:
                 servo.ChangeDutyCycle(0)  # Stop the servo if no relevant button is pressed
+
+# Main loop to handle reconnections
+controller_path = "/dev/input/event2"
+controllerInput = wait_for_controller(controller_path)
+
+try:
+    while True:
+        try:
+            handle_events(controllerInput)
+        except OSError:
+            print("Controller disconnected, waiting for reconnection...")
+            controllerInput = wait_for_controller(controller_path)
 
 except KeyboardInterrupt:
     # Clean up GPIO settings when the script is terminated
