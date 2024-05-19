@@ -17,13 +17,23 @@ servo = GPIO.PWM(servo_pin, 50)
 # Start the PWM with 0% duty cycle
 servo.start(0)
 
-# Open the controller device
-controllerInput = evdev.InputDevice("/dev/input/event2")
-
+# Function to move the servo to a specific angle
 def move_servo(angle):
     duty_cycle = angle / 18 + 2
     servo.ChangeDutyCycle(duty_cycle)
     print(f"Moving servo to angle: {angle}")
+
+# Function to wait for the controller to become available
+def wait_for_controller(path):
+    while True:
+        try:
+            return evdev.InputDevice(path)
+        except FileNotFoundError:
+            print("Controller not found, waiting...")
+            time.sleep(1)
+
+# Wait for the controller to be available
+controllerInput = wait_for_controller("/dev/input/event2")
 
 try:
     for event in controllerInput.read_loop():
