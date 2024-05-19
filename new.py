@@ -34,6 +34,8 @@ try:
                 move_servo(90)  # Move to 90 degrees
             elif event.code == evdev.ecodes.BTN_X and event.value == 1:  # X button pressed
                 move_servo(180)  # Move to 180 degrees
+            else:
+                servo.ChangeDutyCycle(0)  # Stop the servo if no relevant button is pressed
 
 except KeyboardInterrupt:
     # Clean up GPIO settings when the script is terminated
