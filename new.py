@@ -20,20 +20,28 @@ servo.start(0)
 # Open the controller device
 controllerInput = evdev.InputDevice("/dev/input/event2")
 
-def move_servo(angle):
-    duty_cycle = angle / 18 + 2
-    servo.ChangeDutyCycle(duty_cycle)
-    print(f"Moving servo to angle: {angle}")
+def map_value(value, from_low, from_high, to_low, to_high):
+    # Map the input value from one range to another
+    return to_low + (float(value - from_low) / (from_high - from_low) * (to_high - to_low))
 
 try:
+    angle = 90  # Start at the midpoint (90 degrees)
     for event in controllerInput.read_loop():
-        if event.type == evdev.ecodes.EV_KEY:
-            if event.code == evdev.ecodes.BTN_A and event.value == 1:  # A button pressed
-                move_servo(0)  # Move to 0 degrees
-            elif event.code == evdev.ecodes.BTN_B and event.value == 1:  # B button pressed
-                move_servo(90)  # Move to 90 degrees
-            elif event.code == evdev.ecodes.BTN_X and event.value == 1:  # X button pressed
-                move_servo(180)  # Move to 180 degrees
+        if event.type == evdev.ecodes.EV_ABS:
+            if event.code == evdev.ecodes.ABS_Z:  # RT trigger
+                if event.value > 0:
+                    angle += 1  # Increment angle
+                    angle = min(angle, 180)  # Clamp to 180 degrees max
+                    duty_cycle = map_value(angle, 0, 180, 2, 12)
+                    servo.ChangeDutyCycle(duty_cycle)
+                    print(f"RT Trigger Angle: {angle}")
+            elif event.code == evdev.ecodes.ABS_RZ:  # LT trigger
+                if event.value > 0:
+                    angle -= 1  # Decrement angle
+                    angle = max(angle, 0)  # Clamp to 0 degrees min
+                    duty_cycle = map_value(angle, 0, 180, 2, 12)
+                    servo.ChangeDutyCycle(duty_cycle)
+                    print(f"LT Trigger Angle: {angle}")
 
 except KeyboardInterrupt:
     # Clean up GPIO settings when the script is terminated
