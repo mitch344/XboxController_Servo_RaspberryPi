@@ -1,6 +1,7 @@
 import evdev
 import RPi.GPIO as GPIO
 import time
+import os
 
 # Set the GPIO mode to BCM
 GPIO.setmode(GPIO.BCM)
@@ -34,12 +35,25 @@ def wait_for_controller(path):
 
 # Function to handle controller events
 def handle_events(controllerInput):
+    start_button_pressed_time = None
+    start_button_hold_duration = 3  # seconds
+
     for event in controllerInput.read_loop():
         if event.type == evdev.ecodes.EV_KEY:
             if event.code == evdev.ecodes.BTN_A and event.value == 1:  # A button pressed
                 move_servo(0)  # Move to 0 degrees
             elif event.code == evdev.ecodes.BTN_X and event.value == 1:  # X button pressed
                 move_servo(180)  # Move to 180 degrees
+            elif event.code == evdev.ecodes.BTN_START:
+                if event.value == 1:  # Start button pressed
+                    start_button_pressed_time = time.time()
+                elif event.value == 0:  # Start button released
+                    if start_button_pressed_time is not None:
+                        press_duration = time.time() - start_button_pressed_time
+                        if press_duration >= start_button_hold_duration:
+                            print("Shutting down system...")
+                            os.system("sudo shutdown -h now")
+                        start_button_pressed_time = None
             else:
                 servo.ChangeDutyCycle(0)  # Stop the servo if no relevant button is pressed
 
