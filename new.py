@@ -22,6 +22,7 @@ servo.start(0)
 def move_servo(angle):
     duty_cycle = angle / 18 + 2
     servo.ChangeDutyCycle(duty_cycle)
+    time.sleep(0.5)  # Allow some time for the servo to move
     print(f"Moving servo to angle: {angle}")
 
 # Function to wait for the controller to become available
@@ -54,14 +55,19 @@ def handle_events(controllerInput):
                             print("Shutting down system...")
                             os.system("sudo shutdown -h now")
                         start_button_pressed_time = None
-            else:
-                servo.ChangeDutyCycle(0)  # Stop the servo if no relevant button is pressed
 
 # Main loop to handle reconnections
 controller_path = "/dev/input/event2"
 controllerInput = wait_for_controller(controller_path)
 
 try:
+    # Move servo to 180 degrees and then back to 0 degrees to verify the program has started
+    move_servo(180)
+    time.sleep(1)
+    move_servo(0)
+    time.sleep(1)
+    servo.ChangeDutyCycle(0)  # Stop the servo
+
     while True:
         try:
             handle_events(controllerInput)
