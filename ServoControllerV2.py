@@ -7,7 +7,7 @@ GPIO.setup(18,GPIO.OUT)
 servo = GPIO.PWM(18,50)
 servo.start(0)
 
-controllerInput = evdev.InputDevice("/dev/input/event0")
+controllerInput = evdev.InputDevice("/dev/input/event2")
 
 for event in controllerInput.read_loop():
   if event.type == evdev.ecodes.EV_ABS:
