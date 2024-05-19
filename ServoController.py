@@ -4,8 +4,8 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11,GPIO.OUT)
-servo = GPIO.PWM(11,50)
+GPIO.setup(18,GPIO.OUT)
+servo = GPIO.PWM(18,50)
 servo.start(0)
 
 def map_value(value, in_min, in_max, out_min, out_max):
